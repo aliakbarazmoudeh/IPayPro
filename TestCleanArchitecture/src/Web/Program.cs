@@ -14,6 +14,8 @@ builder.Services.AddWebServices();
 
 var app = builder.Build();
 
+app.UseCors("AllowAll");
+
 app.UseRouting();
 
 app.MapControllers();
@@ -33,11 +35,16 @@ if (app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 
 app.Run();
+
+// TODO - Test API for Bank, Product, Payment and Account Controller
+// TODO - Add Result for create and update operations for Bank
+// TODO - Add Result for create and update operations for Bank
+// TODO - Add validation for string types in create and update operations for Bank and Product
 
 public partial class Program
 {

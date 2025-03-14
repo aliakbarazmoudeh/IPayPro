@@ -4,7 +4,7 @@ using TestCleanArchitecture.Domain.Entities;
 
 namespace TestCleanArchitecture.Infrastructure.Data;
 
-public partial class ApplicationDbContext : DbContext
+public partial class ApplicationDbContext : DbContext, IApplicationDbContext
 {
     public ApplicationDbContext()
     {
@@ -74,11 +74,13 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<PanelTransaction> PanelTransactions { get; set; }
 
     public virtual DbSet<PanelWallet> PanelWallets { get; set; }
-    
+
     public virtual DbSet<TempLogin> TempLogins { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseMySql("Server=localhost;Port=3306;Database=ipaypro;User=aliakbar;Password=Aliakbar@6979;",ServerVersion.AutoDetect("Server=localhost;Port=3306;Database=ipaypro;User=aliakbar;Password=Aliakbar@6979;"));
+        => optionsBuilder.UseMySql("Server=localhost;Port=3306;Database=ipaypro;User=aliakbar;Password=Aliakbar@6979;",
+            ServerVersion.AutoDetect(
+                "Server=localhost;Port=3306;Database=ipaypro;User=aliakbar;Password=Aliakbar@6979;"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

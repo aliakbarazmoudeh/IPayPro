@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TestCleanArchitecture.Application.Common.Interfaces;
 using TestCleanArchitecture.Infrastructure.Data;
 
 namespace TestCleanArchitecture.Infrastructure;
@@ -21,6 +22,8 @@ public static class DependencyInjection
             options.UseMySql(connectionString,
                 ServerVersion.AutoDetect(connectionString));
         });
+
+        services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
         return services;
     }

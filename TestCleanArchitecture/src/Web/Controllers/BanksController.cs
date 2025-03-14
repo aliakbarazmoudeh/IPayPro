@@ -1,59 +1,53 @@
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TestCleanArchitecture.Application.Bank.Commands.CreateBank;
+using TestCleanArchitecture.Application.Bank.Commands.UpdateBank;
+using TestCleanArchitecture.Application.Bank.Queries.GetBankById;
+using TestCleanArchitecture.Application.Bank.Queries.GetBanksWithPagination;
+using TestCleanArchitecture.Application.Common.Models;
 using TestCleanArchitecture.Domain.Entities;
-using TestCleanArchitecture.Infrastructure.Data;
 
 
 namespace TestCleanArchitecture.Web.Controllers;
 
 [ApiController]
 [Route("api/banks")]
-public class BanksController(ApplicationDbContext context) : ControllerBase
+public class BanksController(IMediator mediator)
+    : ControllerBase
 {
-    private readonly ApplicationDbContext _context = context;
+    private readonly IMediator _mediator = mediator;
 
-    [HttpGet("{bankId}")]
-    public async Task<IActionResult> GetBank(int bankId)
+    [HttpGet("{BankId}")]
+    public async Task<IActionResult> GetBankById([FromRoute] GetBankByIdQuery query)
     {
-        PanelBank? bank = await _context.PanelBanks.FirstOrDefaultAsync(b => b.Id == bankId);
+        PanelBank? bank = await _mediator.Send(query);
 
-        if (bank is not null) return Ok(bank);
+        if (bank is null)
+            return NotFound(new { msg = "no bank found with this Id" });
 
-        return NotFound(new { msg = "no bank found with this Id" });
+        return Ok(bank);
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllBanks()
+    public async Task<IActionResult> GetBanksWithPagination([FromQuery] GetBanksWithPaginationQuery query)
     {
-        return Ok(await _context.PanelBanks.ToListAsync());
+        return Ok(await _mediator.Send(query));
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateBank(PanelBank entity)
+    public async Task<IActionResult> CreateBank([FromBody]CreateBankCommand command)
     {
-        await _context.PanelBanks.AddAsync(entity);
-        return Ok();
+        return await _mediator.Send(command);
     }
 
-    [HttpPut("{bankId}")]
-    public async Task<IActionResult> UpdateBank(int bankId,[FromBody] PanelBank entity)
+    [HttpPut]
+    public async Task<IActionResult> UpdateBank([FromBody] UpdateBankCommand command)
     {
-        PanelBank? bank = await _context.PanelBanks.FirstOrDefaultAsync(bank => bank.Id == bankId);
-        return Ok();
-    }
-
-    [HttpDelete("{bankId}")]
-    public async Task<IActionResult> DeleteBank(int bankId)
-    {
-        PanelBank? bank = await _context.PanelBanks.FirstOrDefaultAsync(bank => bank.Id == bankId);
-        if (bank is not null)
-        {
-            _context.PanelBanks.Remove(bank);
-            await _context.SaveChangesAsync();
-            return Ok(new {msg = "Bank removed successfully!"});
-        }
-
-        return NotFound(new {msg = "Can't find any bank with this id"});
+        Result result = await _mediator.Send(command);
+        
+        if (result.Succeeded is false)
+            return BadRequest(result.Errors);
+        
+        return Ok(new {msg = "bank updated successfuly"});
     }
 }

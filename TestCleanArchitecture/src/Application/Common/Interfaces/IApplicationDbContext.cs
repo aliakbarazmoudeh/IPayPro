@@ -6,7 +6,7 @@ using TestCleanArchitecture.Domain.Entities;
 
 namespace TestCleanArchitecture.Application.Common.Interfaces;
 
-public interface IApplicationDbContext : IDisposable
+public interface IApplicationDbContext : IDisposable 
 {
     // DbSet Properties
     DbSet<AuthGroup> AuthGroups { get; set; }
